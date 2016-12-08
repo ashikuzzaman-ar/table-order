@@ -1,12 +1,26 @@
-
 package core;
 
+import java.io.FileNotFoundException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
+import model.Food;
+import util.FileReadWrite;
 
+public class Main extends FileReadWrite {
 
-public class Main {
+//    private static
+    private static Map<String, Food> foodMap;
+    private static final Main main = new Main();
 
-    public static void main(String[] args) {
+    public Main() {
+
+        super("foods.txt");
+        foodMap = new HashMap<>();
+        this.initializeFoodItems();
+    }
+
+    public static void main(String[] args) throws FileNotFoundException {
 
         Scanner in = new Scanner(System.in);
         int choice;
@@ -33,6 +47,7 @@ public class Main {
                 case 6:
                     System.out.println("Thank you for using our System.");
                     System.out.println("GoodBye");
+                    main.close();
                     break;
                 default:
                     throw new AssertionError();
@@ -63,7 +78,15 @@ public class Main {
      */
     private static void showFoodItems() {
 
-        //TODO: Have to write logic here
+        System.out.println("---------------------------------------------");
+        System.out.printf("|%-8s%-30s%-5s|\n", "Code", "Item Name", "Price");
+        System.out.println("---------------------------------------------");
+        foodMap.entrySet().stream().forEach(food -> {
+
+            Food tempFood = food.getValue();
+            System.out.printf("|%-8s%-30s%-5s|\n", tempFood.getMenuCode(), tempFood.getMenuName(), tempFood.getMenuPrice());
+            System.out.println("---------------------------------------------");
+        });
     }
 
     /**
@@ -90,7 +113,24 @@ public class Main {
     }
 
     private static void finalizeOrder() {
-    
+
         //TODO: Have to write logic here
+    }
+
+    @Override
+    public void close() {
+
+        this.getScanner().close();
+    }
+
+    private void initializeFoodItems() {
+
+        String[] foods = this.getFoodItems();
+
+        for (String food : foods) {
+            String[] item = food.split(";;");
+            Food foodObject = new Food(item[0], item[1], Integer.parseInt(item[2]));
+            foodMap.put(foodObject.getMenuCode(), foodObject);
+        }
     }
 }
