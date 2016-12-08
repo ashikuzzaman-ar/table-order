@@ -111,7 +111,7 @@ public class Main extends FileReadWrite {
             if (foodMap.containsKey(foodCode)) {
 
                 System.out.printf("Enter quantity of %s : ", foodCode);
-                int foodQuantity = IN.nextInt();
+                int foodQuantity = Math.abs(IN.nextInt());
 
                 if (!order.getFoodItems().containsKey(foodCode)) {
 
@@ -163,7 +163,38 @@ public class Main extends FileReadWrite {
      */
     private static void deleteOrderList() {
 
-        //TODO: Have to write logic here
+        char iteration;
+        do {
+
+            System.out.print("Enter food code: ");
+            String foodCode = IN.next().trim().toUpperCase();
+
+            if (order.getFoodItems().containsKey(foodCode)) {
+
+                int previousQuantity = order.getFoodItems().get(foodCode);
+                System.out.printf("Enter quantity of %s (ordered: %s ) : ", foodCode, previousQuantity);
+                int foodQuantity = Math.abs(IN.nextInt());
+
+                if (foodQuantity == previousQuantity) {
+
+                    order.getFoodItems().remove(foodCode);
+                    
+                } else if (foodQuantity < previousQuantity){
+
+                    order.getFoodItems().replace(foodCode, previousQuantity - foodQuantity);
+                } else {
+                    
+                    System.out.println("Quantity is not valid!!");
+                }
+            } else {
+
+                System.out.println("This item is not ordered! Please try again.");
+            }
+
+            System.out.print("Delete more? Y/n: ");
+            iteration = (IN.next().trim().toLowerCase()).charAt(0);
+        } while (iteration == 'y');
+        
     }
 
     private static void finalizeOrder() {
