@@ -11,17 +11,18 @@ public class Main extends FileReadWrite {
 
 //    private static
     private static Map<String, Food> foodMap;
-    private static final Main main = new Main();
+    private static Main main;
+    
 
-    public Main() {
+    public Main(String fileName) {
 
-        super("foods.txt");
-        foodMap = new HashMap<>();
-        this.initializeFoodItems();
+        super(fileName);
     }
 
     public static void main(String[] args) throws FileNotFoundException {
 
+        main = new Main("foods.txt");
+        main.initializeFoodItems();
         Scanner in = new Scanner(System.in);
         int choice;
         do {
@@ -124,6 +125,8 @@ public class Main extends FileReadWrite {
     }
 
     private void initializeFoodItems() {
+
+        foodMap = new HashMap<>();
 
         String[] foods = this.getFoodItems();
 
