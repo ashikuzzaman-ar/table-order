@@ -5,14 +5,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 import model.Food;
+import model.Order;
 import util.FileReadWrite;
 
 public class Main extends FileReadWrite {
 
-//    private static
+    private static final Scanner IN = new Scanner(System.in);
     private static Map<String, Food> foodMap;
     private static Main main;
-    
+    private static Order order;
 
     public Main(String fileName) {
 
@@ -23,18 +24,18 @@ public class Main extends FileReadWrite {
 
         main = new Main("foods.txt");
         main.initializeFoodItems();
-        Scanner in = new Scanner(System.in);
+
         int choice;
         do {
             //print menu and read choice
             menu();
-            choice = in.nextInt();
+            choice = IN.nextInt();
             switch (choice) {
                 case 1:
                     showFoodItems();
                     break;
                 case 2:
-                    order();
+                    orderFood();
                     break;
                 case 3:
                     showOrderedList();
@@ -93,9 +94,33 @@ public class Main extends FileReadWrite {
     /**
      * Order food items
      */
-    private static void order() {
+    private static void orderFood() {
 
-        //TODO: Have to write logic here
+        if (order == null) {
+
+            System.out.print("Enter table number: ");
+            order = new Order(IN.nextInt());
+        }
+
+        char iteration;
+        do {
+
+            System.out.print("Enter food code: ");
+            String foodCode = IN.next();
+            System.out.printf("Enter quantity of %s : ", foodCode);
+            int foodQuantity = IN.nextInt();
+
+            if (!order.getFoodItems().containsKey(foodCode)) {
+
+                order.getFoodItems().put(foodCode, foodQuantity);
+            } else {
+
+                order.getFoodItems().replace(foodCode, order.getFoodItems().get(foodCode) + foodQuantity);
+            }
+
+            System.out.print("Add more? Y/n: ");
+            iteration = (IN.next().trim().toLowerCase()).charAt(0);
+        } while (iteration == 'y');
     }
 
     /**
