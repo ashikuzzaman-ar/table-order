@@ -106,16 +106,23 @@ public class Main extends FileReadWrite {
         do {
 
             System.out.print("Enter food code: ");
-            String foodCode = IN.next();
-            System.out.printf("Enter quantity of %s : ", foodCode);
-            int foodQuantity = IN.nextInt();
+            String foodCode = IN.next().trim().toUpperCase();
 
-            if (!order.getFoodItems().containsKey(foodCode)) {
+            if (foodMap.containsKey(foodCode)) {
 
-                order.getFoodItems().put(foodCode, foodQuantity);
+                System.out.printf("Enter quantity of %s : ", foodCode);
+                int foodQuantity = IN.nextInt();
+
+                if (!order.getFoodItems().containsKey(foodCode)) {
+
+                    order.getFoodItems().put(foodCode, foodQuantity);
+                } else {
+
+                    order.getFoodItems().replace(foodCode, order.getFoodItems().get(foodCode) + foodQuantity);
+                }
             } else {
 
-                order.getFoodItems().replace(foodCode, order.getFoodItems().get(foodCode) + foodQuantity);
+                System.out.println("This item is not available! Please try again.");
             }
 
             System.out.print("Add more? Y/n: ");
@@ -127,7 +134,28 @@ public class Main extends FileReadWrite {
      * Print food ordered list
      */
     private static void showOrderedList() {
-        //TODO: Have to write logic here
+
+        Map<String, Integer> foodItems = order.getFoodItems();
+        System.out.println("Food items for table number " + order.getTableNumber() + " : ");
+
+        System.out.printf("%-8s%-30s%-10s%-5s\n", "Code", "Food Name", "Quantity", "Cost");
+        System.out.println("-----------------------------------------------------");
+        
+        order.setFinalBill(0);
+
+        foodItems.entrySet().stream().forEach(item -> {
+
+            String key = item.getKey();
+            String name = foodMap.get(key).getMenuName();
+            int quantity = item.getValue();
+            int cost = foodMap.get(key).getMenuPrice() * quantity;
+            order.setFinalBill(order.getFinalBill() + cost);
+            System.out.printf("%-8s%-30s%-10s%-5s\n", key, name, quantity, cost);
+        });
+
+        System.out.println("-----------------------------------------------------");
+        System.out.printf("%-8s%-30s%-10s%-5s\n", "", "Total:", "", order.getFinalBill());
+//        System.out.println("Final Bill: " + order.getFinalBill() + "\n\n");2
     }
 
     /**
