@@ -61,11 +61,11 @@ public abstract class FileReadWrite implements Serializable, Closeable {
                 }
 
                 this.scanner.close();
-
-                this.formatter = new Formatter(this.file);
-                this.formatter.format("%s", stringBuilder.toString());
-                this.formatter.close();
             }
+
+            this.formatter = new Formatter(this.file);
+            this.formatter.format("%s", stringBuilder.toString());
+            this.formatter.close();
         } catch (FileNotFoundException e) {
 
             System.err.println("No previous data found!");

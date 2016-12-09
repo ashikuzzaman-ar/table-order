@@ -235,6 +235,7 @@ public class Main extends FileReadWrite {
 
                 main = new Main("orders.txt");
                 main.putOrderList(finalizeString.toString());
+                System.err.println("Your order is now recorded in orders.txt file!");
             }
         } else {
 
