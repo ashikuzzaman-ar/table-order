@@ -1,6 +1,7 @@
 package core;
 
 import java.io.FileNotFoundException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -14,6 +15,7 @@ public class Main extends FileReadWrite {
     private static Map<String, Food> foodMap;
     private static Main main;
     private static Order order;
+    private static StringBuilder finalizeString;
 
     public Main(String fileName) {
 
@@ -135,27 +137,43 @@ public class Main extends FileReadWrite {
      */
     private static void showOrderedList() {
 
-        Map<String, Integer> foodItems = order.getFoodItems();
-        System.out.println("Food items for table number " + order.getTableNumber() + " : ");
+        if (order != null) {
 
-        System.out.printf("%-8s%-30s%-10s%-5s\n", "Code", "Food Name", "Quantity", "Cost");
-        System.out.println("-----------------------------------------------------");
-        
-        order.setFinalBill(0);
+            Map<String, Integer> foodItems = order.getFoodItems();
+            System.out.println("Food items for table number " + order.getTableNumber() + " : ");
 
-        foodItems.entrySet().stream().forEach(item -> {
+            System.out.printf("%-8s%-30s%-10s%-5s\n", "Code", "Food Name", "Quantity", "Cost");
+            System.out.println("-----------------------------------------------------");
 
-            String key = item.getKey();
-            String name = foodMap.get(key).getMenuName();
-            int quantity = item.getValue();
-            int cost = foodMap.get(key).getMenuPrice() * quantity;
-            order.setFinalBill(order.getFinalBill() + cost);
-            System.out.printf("%-8s%-30s%-10s%-5s\n", key, name, quantity, cost);
-        });
+            order.setFinalBill(0);
 
-        System.out.println("-----------------------------------------------------");
-        System.out.printf("%-8s%-30s%-10s%-5s\n", "", "Total:", "", order.getFinalBill());
-//        System.out.println("Final Bill: " + order.getFinalBill() + "\n\n");2
+            finalizeString = new StringBuilder();
+            finalizeString.append(new Date());
+            finalizeString.append(" ==>> Table : ");
+            finalizeString.append(order.getTableNumber());
+            finalizeString.append(" || Orders = ");
+
+            foodItems.entrySet().stream().forEach(item -> {
+
+                String key = item.getKey();
+                String name = foodMap.get(key).getMenuName();
+                int quantity = item.getValue();
+                int cost = foodMap.get(key).getMenuPrice() * quantity;
+                order.setFinalBill(order.getFinalBill() + cost);
+                System.out.printf("%-8s%-30s%-10s%-5s\n", key, name, quantity, cost);
+            });
+
+            finalizeString.append(foodItems.entrySet().toString());
+            finalizeString.append(" || Total Bill : ");
+            finalizeString.append(order.getFinalBill());
+            finalizeString.append("\n");
+
+            System.out.println("-----------------------------------------------------");
+            System.out.printf("%-8s%-30s%-10s%-5s\n", "", "Total:", "", order.getFinalBill());
+        } else {
+
+            System.err.println("Order list is empty!");
+        }
     }
 
     /**
@@ -163,49 +181,79 @@ public class Main extends FileReadWrite {
      */
     private static void deleteOrderList() {
 
-        char iteration;
-        do {
+        if (order != null) {
 
-            System.out.print("Enter food code: ");
-            String foodCode = IN.next().trim().toUpperCase();
+            char iteration;
+            do {
 
-            if (order.getFoodItems().containsKey(foodCode)) {
+                System.out.print("Enter food code: ");
+                String foodCode = IN.next().trim().toUpperCase();
 
-                int previousQuantity = order.getFoodItems().get(foodCode);
-                System.out.printf("Enter quantity of %s (ordered: %s ) : ", foodCode, previousQuantity);
-                int foodQuantity = Math.abs(IN.nextInt());
+                if (order.getFoodItems().containsKey(foodCode)) {
 
-                if (foodQuantity == previousQuantity) {
+                    int previousQuantity = order.getFoodItems().get(foodCode);
+                    System.out.printf("Enter quantity of %s (ordered: %s ) : ", foodCode, previousQuantity);
+                    int foodQuantity = Math.abs(IN.nextInt());
 
-                    order.getFoodItems().remove(foodCode);
-                    
-                } else if (foodQuantity < previousQuantity){
+                    if (foodQuantity == previousQuantity) {
 
-                    order.getFoodItems().replace(foodCode, previousQuantity - foodQuantity);
+                        order.getFoodItems().remove(foodCode);
+
+                    } else if (foodQuantity < previousQuantity) {
+
+                        order.getFoodItems().replace(foodCode, previousQuantity - foodQuantity);
+                    } else {
+
+                        System.out.println("Quantity is not valid!!");
+                    }
                 } else {
-                    
-                    System.out.println("Quantity is not valid!!");
+
+                    System.out.println("This item is not ordered! Please try again.");
                 }
-            } else {
 
-                System.out.println("This item is not ordered! Please try again.");
-            }
+                System.out.print("Delete more? Y/n: ");
+                iteration = (IN.next().trim().toLowerCase()).charAt(0);
+            } while (iteration == 'y');
+        } else {
 
-            System.out.print("Delete more? Y/n: ");
-            iteration = (IN.next().trim().toLowerCase()).charAt(0);
-        } while (iteration == 'y');
-        
+            System.err.println("Nothing to delete!");
+        }
     }
 
     private static void finalizeOrder() {
 
-        //TODO: Have to write logic here
+        if (order != null) {
+
+            System.out.println("------------------------------------------------------------");
+            System.out.println("Your current orders are : ");
+            System.out.println("------------------------------------------------------------");
+            showOrderedList();
+            System.out.print("Do you want to finalize this? Y/n : ");
+            char decision = IN.next().trim().toLowerCase().charAt(0);
+
+            if (decision == 'y') {
+
+                main = new Main("orders.txt");
+                main.putOrderList(finalizeString.toString());
+            }
+        } else {
+
+            System.err.println("Nothing to finalize!");
+        }
     }
 
     @Override
     public void close() {
 
-        this.getScanner().close();
+        if (this.getScanner() != null) {
+
+            this.getScanner().close();
+        }
+
+        if (this.getFormatter() != null) {
+
+            this.getFormatter().close();
+        }
     }
 
     private void initializeFoodItems() {
